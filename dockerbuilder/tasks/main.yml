@@ -1,0 +1,40 @@
+---
+- name: Ensure docker and python pip package is present.
+  apt:
+    name:
+    - docker.io
+    - python-pip
+    update_cache: yes
+    state: present
+
+- name: Ensure pip docker-py is present
+  pip:
+    name: docker-py
+
+- name: Create build directory
+  file:
+    path: ~/app
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy Dockerfile
+  copy:
+    src: Dockerfile
+    dest: ~/app
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Log into DockerHub
+  docker_login:
+    username: '{{ dockerhubuser }}'
+    password: '{{ dockerhubtoken }}'
+    email: '{{ dockerhubemail }}'
+
+- name: Build an image and push it to docker hub.
+  docker_image:
+    path: ~/app
+    name: '{{ imagename }}'
+    push: yes

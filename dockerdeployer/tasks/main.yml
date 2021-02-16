@@ -1,0 +1,27 @@
+---
+- name: Ensure docker, python-pip package is present.
+  apt:
+    name:
+    - docker.io
+    - python-pip
+    update_cache: yes
+    state: present
+
+- name: Ensure pip docker-py is present
+  pip:
+    name: docker-py
+
+- name: Log into DockerHub
+  docker_login:
+    username: '{{ dockerhubuser }}'
+    password: '{{ dockerhubtoken }}'
+    email: '{{ dockerhubemail }}'
+
+- name: Ensure boxfuse container is started...
+  docker_container:
+    name: boxfuse
+    image: '{{ imagename }}'
+    state: started
+    restart_policy: unless-stopped
+    ports:
+    - "8080:8080"
